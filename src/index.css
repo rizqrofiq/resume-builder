@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
+}
+
+/* Custom utilities for the ATS PDF export */
+@media print {
+  body {
+    @apply bg-white object-contain;
+  }
+  
+  /* Ensure page breaks don't happen inside critical sections */
+  .resume-section {
+    page-break-inside: avoid;
+  }
+}
+
+/* Custom Scrollbar for Webkit */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+/* Premium overrides for month inputs */
+input[type="month"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+input[type="month"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
