@@ -60,7 +60,7 @@ export const CustomSelect = ({ label, value, onChange, options, icon: Icon, disa
   );
 };
 
-export const CustomMonthPicker = ({ label, value, onChange, icon: Icon, disabled = false, placeholder = 'YYYY-MM' }: any) => {
+export const CustomMonthPicker = ({ label, value, onChange, icon: Icon, disabled = false, placeholder = 'YYYY-MM', suffix }: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -106,12 +106,13 @@ export const CustomMonthPicker = ({ label, value, onChange, icon: Icon, disabled
           type="button"
           disabled={disabled}
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-full text-left ${Icon ? 'pl-9' : 'px-3'} pr-3 py-2.5 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-blue-500 transition-all text-sm 
+          className={`w-full text-left ${Icon ? 'pl-9' : 'px-3'} ${suffix ? 'pr-20' : 'pr-3'} py-2.5 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:border-blue-500 transition-all text-sm 
             ${disabled ? 'bg-slate-50 text-slate-400 cursor-not-allowed border-slate-200' : 'bg-slate-50 hover:bg-white text-slate-800 border-slate-200'}
             ${isOpen ? 'ring-2 ring-blue-500/20 border-blue-500 bg-white' : ''}`}
         >
           {value ? getDisplayValue() : <span className="text-slate-400">{placeholder}</span>}
         </button>
+        {suffix && <div className="absolute right-2 top-1/2 -translate-y-1/2 z-10">{suffix}</div>}
 
         {isOpen && !disabled && (
           <div className="absolute top-full left-0 mt-1.5 w-[240px] bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-3 animate-in fade-in slide-in-from-top-2 duration-150">

@@ -67,9 +67,7 @@ function App() {
         </div>
 
         <div className="w-1/2 h-full overflow-y-auto bg-slate-200 p-8 flex justify-center custom-scrollbar">
-          <div className="shadow-2xl rounded-sm transition-all hover:shadow-xl w-fit">
-            <ResumePreview data={resumeData} previewRef={previewRef} />
-          </div>
+          <ResumePreview data={resumeData} previewRef={previewRef} />
         </div>
       </main>
     </div>

@@ -78,6 +78,9 @@ export interface ResumeSettings {
   photoShape?: 'circle' | 'square' | 'rounded';
   photoSize?: 'small' | 'medium' | 'large' | 'xlarge';
   photoPosition?: 'left' | 'right' | 'top';
+  language?: string;
+  showAtConnector?: boolean;
+  showInConnector?: boolean;
 }
 
 export interface ResumeData {
@@ -119,7 +122,10 @@ export const initialResumeData: ResumeData = {
     contactInfoSize: 'text-sm',
     photoShape: 'circle',
     photoSize: 'medium',
-    photoPosition: 'left'
+    photoPosition: 'left',
+    language: 'en',
+    showAtConnector: true,
+    showInConnector: true,
   },
   personalInfo: {
     fullName: 'Jane Doe',

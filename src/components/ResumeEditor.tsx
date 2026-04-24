@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { ResumeData, Experience, Education } from '../types/resume';
-import { Plus, Trash2, Settings2, MoveVertical, Droplet, Ruler, AlignLeft, AlignCenter, AlignRight, Check, LayoutTemplate, Palette, Type, Rows, AArrowUp, Baseline, FileText, List, Eye, EyeOff, ChevronUp, ChevronDown, CalendarDays, Building2, Briefcase, GraduationCap, Award, BookOpen, Calendar, ALargeSmall, CaseUpper, Type as TypeIcon, Mail, Phone, MapPin, Globe, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Settings2, MoveVertical, Droplet, Ruler, AlignLeft, AlignCenter, AlignRight, Check, LayoutTemplate, Palette, Type, Rows, AArrowUp, Baseline, FileText, List, Eye, EyeOff, ChevronUp, ChevronDown, CalendarDays, Building2, Briefcase, GraduationCap, Award, BookOpen, Calendar, ALargeSmall, CaseUpper, Type as TypeIcon, Mail, Phone, MapPin, Globe, Image as ImageIcon, Link2, Unlink2 } from 'lucide-react';
 import { CustomSelect, CustomMonthPicker } from './FormControls';
 
 interface Props {
@@ -42,6 +42,7 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
   const [activePopup, setActivePopup] = useState<string | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const headerToolbarRef = useRef<HTMLDivElement>(null);
 
   const toggleSection = (id: string) => {
     setCollapsedSections(prev => ({ ...prev, [id]: !prev[id] }));
@@ -49,7 +50,7 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (toolbarRef.current && !toolbarRef.current.contains(e.target as Node)) {
+      if (toolbarRef.current && !toolbarRef.current.contains(e.target as Node) && (!headerToolbarRef.current || !headerToolbarRef.current.contains(e.target as Node))) {
         setActivePopup(null);
       }
     };
@@ -329,6 +330,47 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
 
               <div className="relative">
                 <button
+                  onClick={() => setActivePopup(activePopup === 'language' ? null : 'language')}
+                  className={`w-8 h-8 p-1.5 rounded-sm transition-colors flex items-center justify-center ${activePopup === 'language' ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200 text-slate-600'} group relative`}
+                >
+                  <Globe size={16} />
+                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[11px] font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[100]">
+                    {`Language`}
+                  </span>
+                </button>
+                {activePopup === 'language' && (
+                  <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-48 bg-white border border-slate-200 rounded-md shadow-lg z-10 p-1 max-h-60 overflow-y-auto custom-scrollbar">
+                    {[
+                      { val: 'en', label: '🇺🇸 English' },
+                      { val: 'id', label: '🇮🇩 Bahasa Indonesia' },
+                      { val: 'es', label: '🇪🇸 Español' },
+                      { val: 'fr', label: '🇫🇷 Français' },
+                      { val: 'de', label: '🇩🇪 Deutsch' },
+                      { val: 'pt', label: '🇧🇷 Português' },
+                      { val: 'it', label: '🇮🇹 Italiano' },
+                      { val: 'nl', label: '🇳🇱 Nederlands' },
+                      { val: 'tr', label: '🇹🇷 Türkçe' },
+                      { val: 'ru', label: '🇷🇺 Русский' },
+                      { val: 'zh', label: '🇨🇳 中文' },
+                      { val: 'ja', label: '🇯🇵 日本語' },
+                      { val: 'ko', label: '🇰🇷 한국어' },
+                      { val: 'ar', label: '🇸🇦 العربية' },
+                      { val: 'hi', label: '🇮🇳 हिन्दी' },
+                    ].map((lang) => (
+                      <button
+                        key={lang.val}
+                        onClick={() => { updateSettings('language', lang.val); setActivePopup(null); }}
+                        className={`block w-full text-left px-3 py-1.5 text-sm rounded flex items-center justify-between ${(data.settings?.language || 'en') === lang.val ? 'bg-blue-50 text-blue-600' : 'hover:bg-slate-50 text-slate-700'}`}
+                      >
+                        {lang.label} {(data.settings?.language || 'en') === lang.val && <Check size={14} />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="relative">
+                <button
                   onClick={() => setActivePopup(activePopup === 'dateFormat' ? null : 'dateFormat')}
                   className={`w-8 h-8 p-1.5 rounded-sm transition-colors flex items-center justify-center ${activePopup === 'dateFormat' ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200 text-slate-600'} group relative`}
                 >
@@ -499,35 +541,6 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
                 )}
               </div>
 
-              <div className="relative">
-                <button
-                  onClick={() => setActivePopup(activePopup === 'nameTransform' ? null : 'nameTransform')}
-                  className={`w-8 h-8 p-1.5 rounded-sm transition-colors flex items-center justify-center ${activePopup === 'nameTransform' ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200 text-slate-600'} group relative`}
-                >
-                  <CaseUpper size={16} />
-                  <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[11px] font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[100]">
-                    {`Name Casing`}
-                  </span>
-                </button>
-                {activePopup === 'nameTransform' && (
-                  <div className="absolute top-full mt-2 right-0 sm:left-1/2 sm:-translate-x-1/2 w-40 bg-white border border-slate-200 rounded-md shadow-lg z-10 p-1">
-                    {[
-                      { val: 'uppercase', label: 'UPPERCASE' },
-                      { val: 'capitalize', label: 'Capitalize' },
-                      { val: 'lowercase', label: 'lowercase' },
-                      { val: 'normal-case', label: 'None' }
-                    ].map((sz) => (
-                      <button
-                        key={sz.val}
-                        onClick={() => { updateSettings('nameTransform', sz.val); setActivePopup(null); }}
-                        className={`block w-full text-left px-3 py-2 text-sm rounded flex items-center justify-between ${(data.settings?.nameTransform || 'uppercase') === sz.val ? 'bg-blue-50 text-blue-600' : 'hover:bg-slate-50 text-slate-700'}`}
-                      >
-                        {sz.label} {(data.settings?.nameTransform || 'uppercase') === sz.val && <Check size={14} />}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
 
               <div className="relative">
                 <button
@@ -790,19 +803,19 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
               </div>
             </div>
 
-            <div className="border-t border-slate-100 pt-6 pr-8">
+            <div className="border-t border-slate-100 pt-6 pr-8" ref={headerToolbarRef}>
               <div className="flex flex-col gap-2 mb-3">
                 <h3 className="text-sm font-semibold text-slate-800">Header Styling</h3>
 
                 <div className="flex flex-wrap gap-2">
-                  <div className="flex bg-slate-100 p-1 rounded-md overflow-visible relative items-center">
+                  <div className="flex bg-slate-100 p-1 rounded-md overflow-visible relative items-center gap-1">
                     {/* Alignment */}
                     <div className="relative">
                       <button
                         onClick={() => setActivePopup(activePopup === 'headerAlignment' ? null : 'headerAlignment')}
-                        className={`w-8 h-8 p-1.5 rounded-sm transition-colors flex items-center justify-center ${activePopup === 'headerAlignment' ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200 text-slate-600'} group relative`}
+                        className={`h-8 px-2 rounded-sm transition-colors flex items-center justify-center text-sm ${activePopup === 'headerAlignment' ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200 text-slate-600'} group relative`}
                       >
-                        {data.settings?.headerAlignment === 'center' ? <AlignCenter size={16} /> : data.settings?.headerAlignment === 'right' ? <AlignRight size={16} /> : <AlignLeft size={16} />}
+                        {data.settings?.headerAlignment === 'center' ? <AlignCenter size={14} className="mr-1 opacity-70" /> : data.settings?.headerAlignment === 'right' ? <AlignRight size={14} className="mr-1 opacity-70" /> : <AlignLeft size={14} className="mr-1 opacity-70" />} Align
                         <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[11px] font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[100]">
                           {`Alignment`}
                         </span>
@@ -821,9 +834,39 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
                         </div>
                       )}
                     </div>
-                  </div>
 
-                  <div className="flex bg-slate-100 p-1 rounded-md overflow-visible relative items-center gap-1">
+                    <div className="relative">
+                      <button
+                        onClick={() => setActivePopup(activePopup === 'nameTransform' ? null : 'nameTransform')}
+                        className={`h-8 px-2 rounded-sm transition-colors flex items-center justify-center text-sm ${activePopup === 'nameTransform' ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200 text-slate-600'} group relative`}
+                      >
+                        <CaseUpper size={14} className="mr-1 opacity-70" /> Casing
+                        <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[11px] font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[100]">
+                          {`Name Casing`}
+                        </span>
+                      </button>
+                      {activePopup === 'nameTransform' && (
+                        <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-40 bg-white border border-slate-200 rounded-md shadow-lg z-10 p-1">
+                          {[
+                            { val: 'uppercase', label: 'UPPERCASE' },
+                            { val: 'capitalize', label: 'Capitalize' },
+                            { val: 'lowercase', label: 'lowercase' },
+                            { val: 'normal-case', label: 'None' }
+                          ].map((sz) => (
+                            <button
+                              key={sz.val}
+                              onClick={() => { updateSettings('nameTransform', sz.val as any); setActivePopup(null); }}
+                              className={`block w-full text-left px-3 py-1.5 text-sm rounded flex items-center justify-between ${(data.settings?.nameTransform || 'uppercase') === sz.val ? 'bg-blue-50 text-blue-600' : 'hover:bg-slate-50 text-slate-700'}`}
+                            >
+                              {sz.label} {(data.settings?.nameTransform || 'uppercase') === sz.val && <Check size={14} />}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="w-px h-4 bg-slate-300 mx-0.5"></div>
+
                     <div className="relative">
                       <button
                         onClick={() => setActivePopup(activePopup === 'nameSize' ? null : 'nameSize')}
@@ -971,6 +1014,15 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
                 </span>
               </button>
               <button
+                onClick={() => updateSettings('showAtConnector', !(data.settings?.showAtConnector ?? true))}
+                className={`w-8 h-8 p-1.5 rounded-sm transition-colors flex items-center justify-center ${(data.settings?.showAtConnector ?? true) ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200 text-slate-400'} group relative`}
+              >
+                {(data.settings?.showAtConnector ?? true) ? <Link2 size={16} /> : <Unlink2 size={16} />}
+                <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[11px] font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[100]">
+                  {(data.settings?.showAtConnector ?? true) ? 'Hide "at" connector' : 'Show "at" connector'}
+                </span>
+              </button>
+              <button
                 onClick={() => updateSettings('showExperienceDivider', !(data.settings?.showExperienceDivider ?? true))}
                 className={`w-8 h-8 p-1.5 rounded-sm transition-colors flex items-center justify-center ${data.settings?.showExperienceDivider ?? true ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200 text-slate-400'} group relative`}
 
@@ -1009,15 +1061,21 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
                       { label: 'Internship', value: 'Internship' }
                     ]} />
                     <CustomMonthPicker icon={Calendar} label="Start Date" value={exp.startDate} onChange={(v: string) => updateExperience(exp.id, 'startDate', v)} />
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1">
-                        <CustomMonthPicker icon={Calendar} label="End Date" value={exp.current ? '' : exp.endDate} onChange={(v: string) => updateExperience(exp.id, 'endDate', v)} disabled={exp.current} />
-                      </div>
-                      <div className="pt-2 flex items-center mb-4">
-                        <input type="checkbox" id={`current-${exp.id}`} checked={exp.current} onChange={(e) => updateExperience(exp.id, 'current', e.target.checked)} className="mr-2 w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-                        <label htmlFor={`current-${exp.id}`} className="text-sm text-slate-700 select-none">Current</label>
-                      </div>
-                    </div>
+                    <CustomMonthPicker
+                      icon={Calendar}
+                      label="End Date"
+                      value={exp.current ? '' : exp.endDate}
+                      onChange={(v: string) => updateExperience(exp.id, 'endDate', v)}
+                      disabled={exp.current}
+                      suffix={
+                        <button
+                          onClick={(e) => { e.stopPropagation(); updateExperience(exp.id, 'current', !exp.current); }}
+                          className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${exp.current ? 'bg-blue-50 text-blue-600 ring-1 ring-blue-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600'}`}
+                        >
+                          Present
+                        </button>
+                      }
+                    />
                   </div>
                   <Input as="textarea" label="Description" value={exp.description} onChange={(v: string) => updateExperience(exp.id, 'description', v)} placeholder="• Achieved X by doing Y..." />
                 </div>
@@ -1039,6 +1097,15 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
           <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
             <div className="flex bg-slate-100 p-1 rounded-md">
               {renderMoveControls("education")}
+              <button
+                onClick={() => updateSettings('showInConnector', !(data.settings?.showInConnector ?? true))}
+                className={`w-8 h-8 p-1.5 rounded-sm transition-colors flex items-center justify-center ${(data.settings?.showInConnector ?? true) ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200 text-slate-400'} group relative`}
+              >
+                {(data.settings?.showInConnector ?? true) ? <Link2 size={16} /> : <Unlink2 size={16} />}
+                <span className="absolute -top-7 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[11px] font-medium px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-[100]">
+                  {(data.settings?.showInConnector ?? true) ? 'Hide "in" connector' : 'Show "in" connector'}
+                </span>
+              </button>
               <button
                 onClick={() => updateSettings('showEducationDivider', !(data.settings?.showEducationDivider ?? true))}
                 className={`w-8 h-8 p-1.5 rounded-sm transition-colors flex items-center justify-center ${data.settings?.showEducationDivider ?? true ? 'bg-white shadow-sm text-blue-600' : 'hover:bg-slate-200 text-slate-400'} group relative`}
@@ -1068,7 +1135,7 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
                   </button>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 pr-8">
                     <Input icon={GraduationCap} label="Institution" value={edu.institution} onChange={(v: string) => updateEducation(edu.id, 'institution', v)} placeholder="University Name" />
-                    <Input icon={Award} label="Degree" value={edu.degree} onChange={(v: string) => updateEducation(edu.id, 'degree', v)} placeholder="Bachelor of Science" />
+                    <Input icon={Award} label="Degree (Optional)" value={edu.degree} onChange={(v: string) => updateEducation(edu.id, 'degree', v)} placeholder="Bachelor of Science" />
                     <Input icon={BookOpen} label="Field of Study" value={edu.fieldOfStudy} onChange={(v: string) => updateEducation(edu.id, 'fieldOfStudy', v)} placeholder="Computer Science" />
                     <div className="grid grid-cols-2 gap-2">
                       <CustomMonthPicker icon={Calendar} label="Start Date" value={edu.startDate} onChange={(v: string) => updateEducation(edu.id, 'startDate', v)} />
