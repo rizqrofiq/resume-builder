@@ -326,7 +326,6 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
     }
   });
 
-  // Split blocks into pages based on splits array
   const pages: React.ReactNode[][] = [[]];
   let currentPage = 0;
   blocks.forEach((block, index) => {
@@ -339,8 +338,6 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
 
   return (
     <div ref={containerRef} className="w-full h-full relative overflow-x-auto overflow-y-auto custom-scrollbar bg-slate-200 p-8">
-
-      {/* Invisible Measuring Layer */}
       <div
         ref={measureRef}
         className="absolute top-0 left-0 opacity-0 pointer-events-none"
