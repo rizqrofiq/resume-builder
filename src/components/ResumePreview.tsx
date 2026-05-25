@@ -39,6 +39,8 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
     return skillsText.split(/[\n,]+/).map(s => s.trim()).filter(s => s.length > 0);
   };
 
+  const isHtml = (text: string): boolean => /^<[a-z][\s\S]*>/i.test(text.trim());
+
   const isModern = settings?.template === 'modern';
   const primaryColor = settings?.primaryColor || '#0f172a';
   const fontFamily = settings?.fontFamily || 'Arial, sans-serif';
@@ -184,7 +186,11 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
             {t('summary')}
           </h2>
           <Divider show={settings?.showSummaryDivider ?? true} />
-          <p className="text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">{personalInfo.summary}</p>
+          {isHtml(personalInfo.summary) ? (
+            <div className="text-sm leading-relaxed text-slate-700 resume-html-content" dangerouslySetInnerHTML={{ __html: personalInfo.summary }} />
+          ) : (
+            <p className="text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">{personalInfo.summary}</p>
+          )}
         </section>
       );
     }
@@ -212,13 +218,17 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
               </span>
             </div>
             {exp.description && (
-              <div className={`text-sm text-slate-700 ${settings?.experienceFormat === 'paragraph' ? 'mt-1 text-justify' : 'pl-4 list-disc whitespace-pre-wrap'}`}>
-                {settings?.experienceFormat === 'paragraph' ? (
-                  <p>{exp.description.replace(/^[•-]\s*/gm, '').replace(/\n+/g, ' ')}</p>
+              <div className="text-sm text-slate-700 mt-1 resume-html-content">
+                {isHtml(exp.description) ? (
+                  <div dangerouslySetInnerHTML={{ __html: exp.description }} />
                 ) : (
-                  exp.description.split('\n').map((line, i) => (
-                    <p key={i} className={line.trim().startsWith('•') || line.trim().startsWith('-') ? '-ml-3' : ''}>{line}</p>
-                  ))
+                  settings?.experienceFormat === 'paragraph' ? (
+                    <p>{exp.description.replace(/^[•-]\s*/gm, '').replace(/\n+/g, ' ')}</p>
+                  ) : (
+                    exp.description.split('\n').map((line, i) => (
+                      <p key={i} className={line.trim().startsWith('•') || line.trim().startsWith('-') ? '-ml-3' : ''}>{line}</p>
+                    ))
+                  )
                 )}
               </div>
             )}
@@ -250,7 +260,13 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
               </span>
             </div>
             {edu.institution && <div className="text-sm font-medium" style={{ color: '#334155' }}>{edu.institution}</div>}
-            {edu.description && <p className="text-sm mt-1 whitespace-pre-wrap text-slate-700">{edu.description}</p>}
+            {edu.description && (
+              isHtml(edu.description) ? (
+                <div className="text-sm mt-1 text-slate-700 resume-html-content" dangerouslySetInnerHTML={{ __html: edu.description }} />
+              ) : (
+                <p className="text-sm mt-1 whitespace-pre-wrap text-slate-700">{edu.description}</p>
+              )
+            )}
           </div>
         );
       });
@@ -288,8 +304,12 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
         );
         if (customSection.type === 'text') {
           blocks.push(
-            <div key={`custom-${customSection.id}-text`} data-page-block="true" className="px-10 mb-4 text-sm text-slate-700 whitespace-pre-wrap">
-              {customSection.content}
+            <div key={`custom-${customSection.id}-text`} data-page-block="true" className="px-10 mb-4 text-sm text-slate-700">
+              {isHtml(customSection.content) ? (
+                <div className="resume-html-content" dangerouslySetInnerHTML={{ __html: customSection.content }} />
+              ) : (
+                <p className="whitespace-pre-wrap">{customSection.content}</p>
+              )}
             </div>
           );
         } else {
@@ -308,13 +328,17 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
                   )}
                 </div>
                 {item.description && (
-                  <div className={`text-sm text-slate-700 ${settings?.experienceFormat === 'paragraph' ? 'mt-1 text-justify' : 'pl-4 list-disc whitespace-pre-wrap'}`}>
-                    {settings?.experienceFormat === 'paragraph' ? (
-                      <p>{item.description.replace(/^[•-]\s*/gm, '').replace(/\n+/g, ' ')}</p>
+                  <div className="text-sm text-slate-700 mt-1 resume-html-content">
+                    {isHtml(item.description) ? (
+                      <div dangerouslySetInnerHTML={{ __html: item.description }} />
                     ) : (
-                      item.description.split('\n').map((line, i) => (
-                        <p key={i} className={line.trim().startsWith('•') || line.trim().startsWith('-') ? '-ml-3' : ''}>{line}</p>
-                      ))
+                      settings?.experienceFormat === 'paragraph' ? (
+                        <p>{item.description.replace(/^[•-]\s*/gm, '').replace(/\n+/g, ' ')}</p>
+                      ) : (
+                        item.description.split('\n').map((line, i) => (
+                          <p key={i} className={line.trim().startsWith('•') || line.trim().startsWith('-') ? '-ml-3' : ''}>{line}</p>
+                        ))
+                      )
                     )}
                   </div>
                 )}

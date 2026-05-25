@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { ResumeData, Experience, Education } from '../types/resume';
-import { Plus, Trash2, Settings2, MoveVertical, Droplet, Ruler, AlignLeft, AlignCenter, AlignRight, Check, LayoutTemplate, Palette, Type, Rows, AArrowUp, Baseline, FileText, List, Eye, EyeOff, ChevronUp, ChevronDown, CalendarDays, Building2, Briefcase, GraduationCap, Award, BookOpen, Calendar, ALargeSmall, CaseUpper, Type as TypeIcon, Mail, Phone, MapPin, Globe, Image as ImageIcon, Link2, Unlink2 } from 'lucide-react';
+import { Plus, Trash2, Settings2, MoveVertical, Droplet, Ruler, AlignLeft, AlignCenter, AlignRight, Check, LayoutTemplate, Palette, Type, Rows, AArrowUp, Baseline, FileText, List, Eye, EyeOff, ChevronUp, ChevronDown, CalendarDays, Building2, Briefcase, GraduationCap, Award, BookOpen, Calendar, ALargeSmall, CaseUpper, Type as TypeIcon, Mail, Phone, MapPin, Globe, Image as ImageIcon, Link2, Unlink2, GripVertical } from 'lucide-react';
 import { CustomSelect, CustomMonthPicker } from './FormControls';
+import { RichTextEditor } from './RichTextEditor';
 
 interface Props {
   data: ResumeData;
@@ -93,6 +94,20 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
     });
   };
 
+  const moveExperienceUp = (index: number) => {
+    if (index <= 0) return;
+    const newExperiences = [...data.experiences];
+    [newExperiences[index - 1], newExperiences[index]] = [newExperiences[index], newExperiences[index - 1]];
+    onChange({ ...data, experiences: newExperiences });
+  };
+
+  const moveExperienceDown = (index: number) => {
+    if (index >= data.experiences.length - 1) return;
+    const newExperiences = [...data.experiences];
+    [newExperiences[index + 1], newExperiences[index]] = [newExperiences[index], newExperiences[index + 1]];
+    onChange({ ...data, experiences: newExperiences });
+  };
+
   const addEducation = () => {
     const newEdu: Education = {
       id: Date.now().toString(),
@@ -118,6 +133,20 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
       ...data,
       educations: data.educations.filter(edu => edu.id !== id)
     });
+  };
+
+  const moveEducationUp = (index: number) => {
+    if (index <= 0) return;
+    const newEducations = [...data.educations];
+    [newEducations[index - 1], newEducations[index]] = [newEducations[index], newEducations[index - 1]];
+    onChange({ ...data, educations: newEducations });
+  };
+
+  const moveEducationDown = (index: number) => {
+    if (index >= data.educations.length - 1) return;
+    const newEducations = [...data.educations];
+    [newEducations[index + 1], newEducations[index]] = [newEducations[index], newEducations[index + 1]];
+    onChange({ ...data, educations: newEducations });
   };
 
   const addCustomSection = () => {
@@ -194,6 +223,30 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
           items: (sec.items || []).filter(item => item.id !== itemId)
         } : sec
       )
+    });
+  };
+
+  const moveCustomSectionItemUp = (sectionId: string, index: number) => {
+    onChange({
+      ...data,
+      customSections: (data.customSections || []).map(sec => {
+        if (sec.id !== sectionId || index <= 0) return sec;
+        const newItems = [...(sec.items || [])];
+        [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
+        return { ...sec, items: newItems };
+      })
+    });
+  };
+
+  const moveCustomSectionItemDown = (sectionId: string, index: number) => {
+    onChange({
+      ...data,
+      customSections: (data.customSections || []).map(sec => {
+        if (sec.id !== sectionId || index >= (sec.items || []).length - 1) return sec;
+        const newItems = [...(sec.items || [])];
+        [newItems[index + 1], newItems[index]] = [newItems[index], newItems[index + 1]];
+        return { ...sec, items: newItems };
+      })
     });
   };
 
@@ -987,7 +1040,7 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
           </div>
         </div>
         {!collapsedSections['summary'] && (
-          <Input as="textarea" label="Summary Text" value={data.personalInfo.summary} onChange={(v: string) => updatePersonalInfo('summary', v)} placeholder="A brief summary of your professional background..." />
+          <RichTextEditor label="Summary Text" value={data.personalInfo.summary} onChange={(v: string) => updatePersonalInfo('summary', v)} placeholder="A brief summary of your professional background..." />
         )}
       </section>
 
@@ -1042,13 +1095,39 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
         {!collapsedSections['experience'] && (
           <>
             <div className="space-y-6">
-              {data.experiences.map((exp) => (
+              {data.experiences.map((exp, index) => (
                 <div key={exp.id} className="p-4 border border-slate-100 rounded-lg bg-slate-50/50 relative group">
-                  <button title="Remove Experience" onClick={() => removeExperience(exp.id)} className="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition-colors " >
-                    <Trash2 size={18} />
-
-
-                  </button>
+                  <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    {data.experiences.length > 1 && (
+                      <>
+                        <button
+                          title="Move Up"
+                          onClick={() => moveExperienceUp(index)}
+                          disabled={index === 0}
+                          className={`w-7 h-7 p-1 rounded-md transition-all flex items-center justify-center ${index === 0 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}
+                        >
+                          <ChevronUp size={16} />
+                        </button>
+                        <button
+                          title="Move Down"
+                          onClick={() => moveExperienceDown(index)}
+                          disabled={index === data.experiences.length - 1}
+                          className={`w-7 h-7 p-1 rounded-md transition-all flex items-center justify-center ${index === data.experiences.length - 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}
+                        >
+                          <ChevronDown size={16} />
+                        </button>
+                        <div className="w-px h-4 bg-slate-200 mx-0.5"></div>
+                      </>
+                    )}
+                    <button title="Remove Experience" onClick={() => removeExperience(exp.id)} className="w-7 h-7 p-1 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                  {data.experiences.length > 1 && (
+                    <div className="absolute top-1/2 -translate-y-1/2 -left-1 opacity-0 group-hover:opacity-40 transition-opacity duration-200 pointer-events-none">
+                      <GripVertical size={16} className="text-slate-400" />
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 pr-8">
                     <Input icon={Building2} label="Company" value={exp.company} onChange={(v: string) => updateExperience(exp.id, 'company', v)} placeholder="Company Name" />
                     <Input icon={Briefcase} label="Position" value={exp.position} onChange={(v: string) => updateExperience(exp.id, 'position', v)} placeholder="Job Title" />
@@ -1077,7 +1156,7 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
                       }
                     />
                   </div>
-                  <Input as="textarea" label="Description" value={exp.description} onChange={(v: string) => updateExperience(exp.id, 'description', v)} placeholder="• Achieved X by doing Y..." />
+                  <RichTextEditor label="Description" value={exp.description} onChange={(v: string) => updateExperience(exp.id, 'description', v)} placeholder="Describe your achievements and responsibilities..." />
                 </div>
               ))}
               {data.experiences.length === 0 && <p className="text-sm text-slate-500 text-center py-4">No experience added yet.</p>}
@@ -1126,13 +1205,39 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
         {!collapsedSections['education'] && (
           <>
             <div className="space-y-6">
-              {data.educations.map((edu) => (
+              {data.educations.map((edu, index) => (
                 <div key={edu.id} className="p-4 border border-slate-100 rounded-lg bg-slate-50/50 relative group">
-                  <button title="Remove Education" onClick={() => removeEducation(edu.id)} className="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition-colors " >
-                    <Trash2 size={18} />
-
-
-                  </button>
+                  <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    {data.educations.length > 1 && (
+                      <>
+                        <button
+                          title="Move Up"
+                          onClick={() => moveEducationUp(index)}
+                          disabled={index === 0}
+                          className={`w-7 h-7 p-1 rounded-md transition-all flex items-center justify-center ${index === 0 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}
+                        >
+                          <ChevronUp size={16} />
+                        </button>
+                        <button
+                          title="Move Down"
+                          onClick={() => moveEducationDown(index)}
+                          disabled={index === data.educations.length - 1}
+                          className={`w-7 h-7 p-1 rounded-md transition-all flex items-center justify-center ${index === data.educations.length - 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}
+                        >
+                          <ChevronDown size={16} />
+                        </button>
+                        <div className="w-px h-4 bg-slate-200 mx-0.5"></div>
+                      </>
+                    )}
+                    <button title="Remove Education" onClick={() => removeEducation(edu.id)} className="w-7 h-7 p-1 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                  {data.educations.length > 1 && (
+                    <div className="absolute top-1/2 -translate-y-1/2 -left-1 opacity-0 group-hover:opacity-40 transition-opacity duration-200 pointer-events-none">
+                      <GripVertical size={16} className="text-slate-400" />
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 pr-8">
                     <Input icon={GraduationCap} label="Institution" value={edu.institution} onChange={(v: string) => updateEducation(edu.id, 'institution', v)} placeholder="University Name" />
                     <Input icon={Award} label="Degree (Optional)" value={edu.degree} onChange={(v: string) => updateEducation(edu.id, 'degree', v)} placeholder="Bachelor of Science" />
@@ -1142,7 +1247,7 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
                       <CustomMonthPicker icon={Calendar} label="End Date" value={edu.endDate} onChange={(v: string) => updateEducation(edu.id, 'endDate', v)} />
                     </div>
                   </div>
-                  <Input as="textarea" label="Description / Honors" value={edu.description} onChange={(v: string) => updateEducation(edu.id, 'description', v)} placeholder="Graduated with honors, relevant coursework..." />
+                  <RichTextEditor label="Description / Honors" value={edu.description} onChange={(v: string) => updateEducation(edu.id, 'description', v)} placeholder="Graduated with honors, relevant coursework..." />
                 </div>
               ))}
               {data.educations.length === 0 && <p className="text-sm text-slate-500 text-center py-4">No education added yet.</p>}
@@ -1202,7 +1307,7 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
           {!collapsedSections[section.id] && (
             <>
               {section.type === 'text' ? (
-                <Input as="textarea" label="Content" value={section.content} onChange={(v: string) => updateCustomSection(section.id, 'content', v)} placeholder="Type your custom content here..." />
+                <RichTextEditor label="Content" value={section.content} onChange={(v: string) => updateCustomSection(section.id, 'content', v)} placeholder="Type your custom content here..." />
               ) : (
                 <div>
                   <div className="flex justify-between items-center mb-4">
@@ -1212,11 +1317,39 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
                     </button>
                   </div>
                   <div className="space-y-6">
-                    {(section.items || []).map(item => (
+                    {(section.items || []).map((item, itemIndex) => (
                       <div key={item.id} className="p-4 border border-slate-100 rounded-lg bg-slate-50/50 relative group">
-                        <button onClick={() => removeCustomSectionItem(section.id, item.id)} className="absolute top-4 right-4 text-slate-400 hover:text-red-500">
-                          <Trash2 size={18} />
-                        </button>
+                        <div className="absolute top-3 right-3 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          {(section.items || []).length > 1 && (
+                            <>
+                              <button
+                                title="Move Up"
+                                onClick={() => moveCustomSectionItemUp(section.id, itemIndex)}
+                                disabled={itemIndex === 0}
+                                className={`w-7 h-7 p-1 rounded-md transition-all flex items-center justify-center ${itemIndex === 0 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}
+                              >
+                                <ChevronUp size={16} />
+                              </button>
+                              <button
+                                title="Move Down"
+                                onClick={() => moveCustomSectionItemDown(section.id, itemIndex)}
+                                disabled={itemIndex === (section.items || []).length - 1}
+                                className={`w-7 h-7 p-1 rounded-md transition-all flex items-center justify-center ${itemIndex === (section.items || []).length - 1 ? 'text-slate-300 cursor-not-allowed' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}
+                              >
+                                <ChevronDown size={16} />
+                              </button>
+                              <div className="w-px h-4 bg-slate-200 mx-0.5"></div>
+                            </>
+                          )}
+                          <button title="Remove Item" onClick={() => removeCustomSectionItem(section.id, item.id)} className="w-7 h-7 p-1 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                        {(section.items || []).length > 1 && (
+                          <div className="absolute top-1/2 -translate-y-1/2 -left-1 opacity-0 group-hover:opacity-40 transition-opacity duration-200 pointer-events-none">
+                            <GripVertical size={16} className="text-slate-400" />
+                          </div>
+                        )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 pr-8">
                           <Input label="Title" value={item.title} onChange={(v: string) => updateCustomSectionItem(section.id, item.id, 'title', v)} placeholder="e.g. Project Name" />
                           <Input label="Subtitle" value={item.subtitle} onChange={(v: string) => updateCustomSectionItem(section.id, item.id, 'subtitle', v)} placeholder="e.g. Role or Tech Stack" />
@@ -1225,7 +1358,7 @@ export const ResumeEditor: React.FC<Props> = ({ data, onChange }) => {
                             <CustomMonthPicker icon={Calendar} label="End Date" value={item.endDate} onChange={(v: string) => updateCustomSectionItem(section.id, item.id, 'endDate', v)} />
                           </div>
                         </div>
-                        <Input as="textarea" label="Description" value={item.description} onChange={(v: string) => updateCustomSectionItem(section.id, item.id, 'description', v)} placeholder="Details..." />
+                        <RichTextEditor label="Description" value={item.description} onChange={(v: string) => updateCustomSectionItem(section.id, item.id, 'description', v)} placeholder="Details..." />
                       </div>
                     ))}
                     {(section.items || []).length === 0 && <p className="text-sm text-slate-500 text-center py-4">No items added yet.</p>}

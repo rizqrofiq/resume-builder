@@ -5,6 +5,7 @@ import { ResumeEditor } from './components/ResumeEditor';
 import { ResumePreview } from './components/ResumePreview';
 import type { ResumeData } from './types/resume';
 import { initialResumeData } from './types/resume';
+import { migrateDescriptionsToHtml } from './utils/migrateHtml';
 
 const GithubIcon = ({ size = 24, className = "" }: { size?: number, className?: string }) => (
   <svg
@@ -25,7 +26,7 @@ const GithubIcon = ({ size = 24, className = "" }: { size?: number, className?: 
 );
 
 function App() {
-  const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
+  const [resumeData, setResumeData] = useState<ResumeData>(() => migrateDescriptionsToHtml(initialResumeData));
   const previewRef = useRef<HTMLDivElement | null>(null);
 
   const handlePrint = useReactToPrint({
