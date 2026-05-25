@@ -3,37 +3,55 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-slate-50 text-slate-900 antialiased;
-  }
+    body {
+        @apply bg-slate-50 text-slate-900 antialiased;
+    }
 }
 
 /* Custom utilities for the ATS PDF export */
 @media print {
-  body {
-    @apply bg-white object-contain;
-  }
-  
-  /* Ensure page breaks don't happen inside critical sections */
-  .resume-section {
-    page-break-inside: avoid;
-  }
+    @page {
+        margin: 15mm 0;
+    }
+
+    @page :first {
+        margin-top: 0;
+    }
+
+    body {
+        @apply bg-white object-contain;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Prevent page breaks inside individual blocks */
+    .page-break-inside-avoid {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .resume-section {
+        page-break-inside: avoid;
+    }
 }
 
 /* Custom Scrollbar for Webkit */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+    width: 8px;
+    height: 8px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 4px;
+    background-color: #cbd5e1;
+    border-radius: 4px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
+    background-color: #94a3b8;
 }
 
 /* Premium overrides for month inputs */
@@ -42,82 +60,83 @@ input[type="month"]::-webkit-calendar-picker-indicator {
     opacity: 0.6;
     transition: opacity 0.2s;
 }
+
 input[type="month"]::-webkit-calendar-picker-indicator:hover {
     opacity: 1;
 }
 
 /* TipTap Rich Text Editor Styles */
 .tiptap-editor-content {
-  padding: 0.625rem 0.75rem;
-  min-height: 6rem;
-  font-size: 0.875rem;
-  line-height: 1.625;
-  color: #1e293b;
-  outline: none;
+    padding: 0.625rem 0.75rem;
+    min-height: 6rem;
+    font-size: 0.875rem;
+    line-height: 1.625;
+    color: #1e293b;
+    outline: none;
 }
 
 .tiptap-editor-content p {
-  margin: 0;
+    margin: 0;
 }
 
-.tiptap-editor-content p + p {
-  margin-top: 0.25em;
+.tiptap-editor-content p+p {
+    margin-top: 0.25em;
 }
 
 .tiptap-editor-content ul,
 .tiptap-editor-content ol {
-  padding-left: 1.25rem;
-  margin: 0.25em 0;
+    padding-left: 1.25rem;
+    margin: 0.25em 0;
 }
 
 .tiptap-editor-content ul {
-  list-style-type: disc;
+    list-style-type: disc;
 }
 
 .tiptap-editor-content ol {
-  list-style-type: decimal;
+    list-style-type: decimal;
 }
 
 .tiptap-editor-content li {
-  margin: 0.125em 0;
+    margin: 0.125em 0;
 }
 
 .tiptap-editor-content li p {
-  margin: 0;
+    margin: 0;
 }
 
 /* TipTap placeholder */
 .tiptap-editor-content p.is-editor-empty:first-child::before {
-  content: attr(data-placeholder);
-  float: left;
-  color: #94a3b8;
-  pointer-events: none;
-  height: 0;
+    content: attr(data-placeholder);
+    float: left;
+    color: #94a3b8;
+    pointer-events: none;
+    height: 0;
 }
 
 /* Preview: rendered HTML content styling */
 .resume-html-content ul,
 .resume-html-content ol {
-  padding-left: 1.25rem;
-  margin: 0.125em 0;
+    padding-left: 1.25rem;
+    margin: 0.125em 0;
 }
 
 .resume-html-content ul {
-  list-style-type: disc;
+    list-style-type: disc;
 }
 
 .resume-html-content ol {
-  list-style-type: decimal;
+    list-style-type: decimal;
 }
 
 .resume-html-content li {
-  margin: 0.0625em 0;
+    margin: 0.0625em 0;
 }
 
 .resume-html-content p {
-  margin: 0;
+    margin: 0;
 }
 
-.resume-html-content p + p {
-  margin-top: 0.125em;
+.resume-html-content p+p {
+    margin-top: 0.125em;
 }

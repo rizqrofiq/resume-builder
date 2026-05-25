@@ -119,10 +119,8 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
     );
   };
 
-  // Build a flat list of all blocks to render
   const blocks: React.ReactNode[] = [];
 
-  // Block 0: Header
   blocks.push(
     <header
       key="header"
@@ -175,7 +173,6 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
     </header>
   );
 
-  // Sections
   const sectionOrder = settings?.sectionOrder || ['summary', 'experience', 'education', 'skills'];
 
   sectionOrder.forEach((sectionId) => {
@@ -380,12 +377,30 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
         className="transform origin-top flex flex-col items-center justify-start gap-8"
         style={{ transform: `scale(${scale})` }}
       >
-        <div ref={previewRef} className="flex flex-col gap-8 items-center w-full">
+        <div
+          ref={previewRef}
+          className="hidden print:block"
+          style={{
+            width: settings?.paperSize === 'letter' ? '8.5in' : '210mm',
+            fontSize: fontSize,
+            lineHeight: 1.5,
+            fontFamily,
+            color: textColor,
+          }}
+        >
+          {blocks.map((block, i) => (
+            <div key={`print-block-${i}`} className="page-break-inside-avoid">
+              {block}
+            </div>
+          ))}
+        </div>
+
+        <div className="flex flex-col gap-8 items-center w-full print:hidden">
           {pages.map((pageBlocks, index) => (
-            <div key={`page-${index}`} className="flex flex-col items-center w-full print:block print:w-auto">
-              <div className="text-slate-500 font-medium mb-4 print:hidden">Page {index + 1}</div>
+            <div key={`page-${index}`} className="flex flex-col items-center w-full">
+              <div className="text-slate-500 font-medium mb-4">Page {index + 1}</div>
               <div
-                className={`bg-white shadow-2xl relative print:shadow-none print:m-0 print:p-0 pb-10 ${index > 0 ? 'pt-10' : ''}`}
+                className={`bg-white shadow-2xl relative pb-10 ${index > 0 ? 'pt-10' : ''}`}
                 style={{
                   width: settings?.paperSize === 'letter' ? '8.5in' : '210mm',
                   minHeight: settings?.paperSize === 'letter' ? '11in' : '297mm',
@@ -393,8 +408,6 @@ export const ResumePreview: React.FC<Props> = ({ data, previewRef }) => {
                   lineHeight: 1.5,
                   fontFamily,
                   color: textColor,
-                  breakAfter: 'always',
-                  pageBreakAfter: 'always'
                 }}
               >
                 {pageBlocks}
